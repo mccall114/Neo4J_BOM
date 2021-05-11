@@ -4,23 +4,29 @@ import urllib
 
 def get_identifiers(identifiers):
     info = {}
+
+    # no packages
     if 'packages' not in identifiers:
         info['package'] = '-'
         info['dependency'] = '-'
         info['project'] = '-'
         info['application'] = '-'
         return info
+
     package = identifiers['packages'][0]['id'].split('/')
     info['package'] = package[0].split(':')[1]
+
     if info['package'] == 'maven':
         dependency = package[1] + '.' + package[2]
         info['dependency'] = dependency
         info['project'] = package[1]
         info['application'], info['version'] = package[2].rsplit('@', 1)
+
     elif info['package'] == 'javascript':
         info['project'] = '-'
         info['application'], info['version'] = package[1].rsplit('@', 1)
         info['dependency'] = package[0] + '.' + package[1]
+
     elif info['package'] == 'npm':
         package[1] = urllib.parse.unquote(package[1])
         info['project'] = '-'
@@ -28,7 +34,16 @@ def get_identifiers(identifiers):
         try:
             info['application'], info['version'] = package[1].rsplit('@', 1)
         except ValueError:
-            info['application'] = '-'
+            info['application'] = package[1]
+            info['version'] = '-'
+
+    elif info['package'] == 'golang':
+        info['project'] = '-'
+        info['dependency'] = identifiers['packages'][0]['id'].split('/', 1)[1]
+        try:
+            info['application'], info['version'] = info['dependency'].rsplit('@', 1)
+        except ValueError:
+            info['application'] = info['dependency']
             info['version'] = '-'
     else:
         info['project'] = package[1]
