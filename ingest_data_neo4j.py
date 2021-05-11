@@ -14,7 +14,8 @@ def ingest_vulns(vulns_list):
     tx.run('''    UNWIND $mapEntry AS mItem
               CALL apoc.merge.node(["vulnerability"],
               {vulnerability_name:mItem["CVE"],
-              severity:mItem["CVSSv3"]})
+              severity:mItem["CVSSv3"],
+              severity_desc:mItem["severity_desc"]})
               YIELD node
               return node
             '''

@@ -62,8 +62,10 @@ def get_vulnerabilities_data(vulnerabilities):
             cve_list.append(vulnerability['name'])
         try:
             vuln_info['CVSSv3'] = float(vulnerability['cvssv3']['baseScore'])
+            vuln_info['severity_desc'] = vulnerability['cvssv3']['baseSeverity']
         except KeyError:
             vuln_info['CVSSv3'] = 0.0
+            vuln_info['severity_desc'] = "None"
         info.append(vuln_info.copy())
     return info, cve_list
 
