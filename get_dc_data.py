@@ -4,6 +4,12 @@ import urllib
 
 def get_identifiers(identifiers):
     info = {}
+    if 'packages' not in identifiers:
+        info['package'] = '-'
+        info['dependency'] = '-'
+        info['project'] = '-'
+        info['application'] = '-'
+        return info
     package = identifiers['packages'][0]['id'].split('/')
     info['package'] = package[0].split(':')[1]
     if info['package'] == 'maven':
@@ -14,9 +20,11 @@ def get_identifiers(identifiers):
     elif info['package'] == 'javascript':
         info['project'] = '-'
         info['application'], info['version'] = package[1].rsplit('@', 1)
+        info['dependency'] = package[0] + '.' + package[1]
     elif info['package'] == 'npm':
         package[1] = urllib.parse.unquote(package[1])
         info['project'] = '-'
+        info['dependency'] = package[0] + '/' + package[1]
         try:
             info['application'], info['version'] = package[1].rsplit('@', 1)
         except ValueError:
@@ -24,6 +32,7 @@ def get_identifiers(identifiers):
             info['version'] = '-'
     else:
         info['project'] = package[1]
+        info['dependency'] = package[0] + '.' + package[1]
 
     return info
 
@@ -57,6 +66,7 @@ def get_dc_data(dependencies, project):
             dependency_data['vulnerabilities'] = cves
         if dependency_data.copy() not in dependency_list:
             dependency_list.append(dependency_data.copy())
+
     return dependency_list, vuln_list
 
 
