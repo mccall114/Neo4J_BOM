@@ -65,6 +65,13 @@ def create_project_relations():
     MERGE (p)-[:USES]->(d)
     ''')
 
+def add_label_colors():
+    tx.run('''
+    MATCH (v:vulnerability)
+    WITH DISTINCT v.severity_desc as severity_desc, collect(DISTINCT v) AS vulns
+    CALL apoc.create.addLabels(vulns, [severity_desc]) YIELD node
+    RETURN *
+    ''')
 
 @click.command()
 @click.argument('project', required=True)
@@ -80,6 +87,7 @@ def run_cli_scan(project, file):
         ingest_vulns(vulns)
         create_vuln_relations()
         create_project_relations()
+        add_label_colors()
         print("Data successfully ingested in Neo4J")
     else:
         print("No data has been ingested")
